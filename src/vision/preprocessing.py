@@ -349,3 +349,28 @@ def warp_board(image, corners, size=800):
     )
 
     return warped
+
+def warp_board_with_margin(image, corners, board_size=800, margin=120):
+    source_points = np.float32(corners)
+
+    output_size = board_size + 2 * margin
+
+    destination_points = np.float32([
+        [margin, margin],
+        [margin + board_size - 1, margin],
+        [margin + board_size - 1, margin + board_size - 1],
+        [margin, margin + board_size - 1]
+    ])
+
+    transformation_matrix = cv2.getPerspectiveTransform(
+        source_points,
+        destination_points
+    )
+
+    warped = cv2.warpPerspective(
+        image,
+        transformation_matrix,
+        (output_size, output_size)
+    )
+
+    return warped
