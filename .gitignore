@@ -4,18 +4,23 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-
 *.cache
 
 engine/*.exe
 
-downloaded_dataset/
+data/raw/
 data/extracted/
 
 data/piece_dataset/images/
 data/piece_dataset/labels/
 
+data/corner_dataset/yolo_corner_dataset/train/
+data/corner_dataset/yolo_corner_dataset/val/
+data/corner_dataset/yolo_corner_dataset/test/
+
 runs/
 
 *.pt
+*.zip
+
 old/

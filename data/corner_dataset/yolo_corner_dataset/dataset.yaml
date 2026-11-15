@@ -1,0 +1,13 @@
+path: E:/pycharm/ChessVisionProject/data/corner_dataset/yolo_corner_dataset
+
+train: train/images
+val: val/images
+test: test/images
+
+names:
+  0: top_left
+  1: top_right
+  2: bottom_left
+  3: bottom_right
+
+nc: 4

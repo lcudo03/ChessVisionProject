@@ -1,4 +1,12 @@
+import numpy as np
+
 from piece_detection.board_mapper import detections_to_board
+
+
+IDENTITY_MATRIX = np.eye(
+    3,
+    dtype=np.float32
+)
 
 
 def test_black_rook_is_mapped_to_a8():
@@ -17,6 +25,7 @@ def test_black_rook_is_mapped_to_a8():
 
     board = detections_to_board(
         detections,
+        IDENTITY_MATRIX,
         board_size=800,
         board_margin=200
     )
@@ -40,6 +49,7 @@ def test_white_rook_is_mapped_to_h1():
 
     board = detections_to_board(
         detections,
+        IDENTITY_MATRIX,
         board_size=800,
         board_margin=200
     )
@@ -73,6 +83,7 @@ def test_higher_confidence_detection_wins():
 
     board = detections_to_board(
         detections,
+        IDENTITY_MATRIX,
         board_size=800,
         board_margin=200
     )

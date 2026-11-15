@@ -10,24 +10,28 @@ def main():
     dataset_yaml = (
         project_root
         / "data"
-        / "piece_dataset"
-        / "chess_pieces.yaml"
+        / "corner_dataset"
+        / "yolo_corner_dataset"
+        / "dataset.yaml"
     )
 
-    print("Project root:", project_root)
-    print("Dataset:", dataset_yaml)
-    print("Dataset exists:", dataset_yaml.exists())
+    if not dataset_yaml.exists():
+        raise FileNotFoundError(
+            f"Dataset YAML not found: {dataset_yaml}"
+        )
+
+    device = 0 if torch.cuda.is_available() else "cpu"
 
     print("CUDA available:", torch.cuda.is_available())
+    print("Device:", device)
 
     if torch.cuda.is_available():
-        print("GPU:", torch.cuda.get_device_name(0))
-        device = 0
-    else:
-        print("Training on CPU")
-        device = "cpu"
+        print(
+            "GPU:",
+            torch.cuda.get_device_name(0)
+        )
 
-    model = YOLO("../src/piece_detection/yolo26n.pt")
+    model = YOLO("yolo26n.pt")
 
     model.train(
         data=str(dataset_yaml),
@@ -35,8 +39,11 @@ def main():
         imgsz=640,
         batch=8,
         device=device,
+        workers=0,
+        cache=False,
         project=str(project_root / "runs"),
-        name="chess_pieces_baseline"
+        name="chess_corner_detector",
+        seed=0
     )
 
 

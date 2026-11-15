@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from vision.preprocessing import load_image
-from vision.board_detector import detect_and_warp_board
+from vision.classical_board_detector import detect_and_warp_board
 
 
 @pytest.mark.integration
@@ -22,7 +22,7 @@ def test_board_can_be_detected_and_warped():
 
     image = load_image(str(image_path))
 
-    warped_board, corners = detect_and_warp_board(
+    warped_board, corners, perspective_matrix = detect_and_warp_board(
         image,
         board_size=800,
         margin=200
@@ -30,4 +30,8 @@ def test_board_can_be_detected_and_warped():
 
     assert warped_board is not None
     assert warped_board.shape[:2] == (1200, 1200)
+
+    assert corners is not None
     assert len(corners) == 4
+
+    assert perspective_matrix.shape == (3, 3)

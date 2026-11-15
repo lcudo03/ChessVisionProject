@@ -2,113 +2,72 @@ from pathlib import Path
 
 import cv2
 
-from vision.preprocessing import load_image
-from vision.board_detector import detect_and_warp_board
-
-from piece_detection.detector import PieceDetector
-from piece_detection.board_mapper import detections_to_board
-
-from chess_logic.board import (
-    print_board,
-    validate_board,
-    validate_with_python_chess
+from pipeline import (
+    ChessVisionPipeline,
+    print_board
 )
-
-from chess_logic.fen import board_to_fen
-from chess_logic.evaluator import CustomEvaluator
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
+    project_root = (
+        Path(__file__)
+        .resolve()
+        .parent
+        .parent
+    )
+
+    piece_model_path = (
+        project_root
+        / "models"
+        / "piece_detector"
+        / "best.pt"
+    )
+
+    corner_model_path = (
+        project_root
+        / "models"
+        / "corner_detector"
+        / "best.pt"
+    )
 
     image_path = (
         project_root
         / "tests"
         / "assets"
-        / "board_start.jpg"
+        / "chessboard_red2k.jpg"
     )
 
-    model_path = (
-        project_root
-        / "runs"
-        / "chess_pieces_baseline-3"
-        / "weights"
-        / "best.pt"
+    image = cv2.imread(
+        str(image_path)
     )
 
-    image = load_image(str(image_path))
+    if image is None:
+        raise FileNotFoundError(
+            f"Could not load image: {image_path}"
+        )
 
-    warped_board, _ = detect_and_warp_board(
-        image,
-        board_size=800,
-        margin=200
+    pipeline = ChessVisionPipeline(
+        piece_model_path=piece_model_path,
+        corner_model_path=corner_model_path
     )
 
-    detector = PieceDetector(
-        str(model_path)
-    )
-
-    detections = detector.detect(
-        warped_board,
-        confidence=0.25
-    )
-
-    board = detections_to_board(
-        detections,
-        board_size=800,
-        board_margin=200
-    )
-
-    print("Recognized board:")
-    print_board(board)
-
-    basic_valid = validate_board(board)
-
-    python_chess_valid = validate_with_python_chess(
-        board,
-        active_color="w",
-        castling="-",
-        en_passant="-"
+    result = pipeline.recognize(
+        image
     )
 
     print()
-    print("Basic validation:", basic_valid)
-    print("Python-chess validation:", python_chess_valid)
+    print("Detected board:")
+    print()
 
-    if basic_valid and python_chess_valid:
-        fen = board_to_fen(
-            board,
-            active_color="w",
-            castling="-",
-            en_passant="-",
-            halfmove_clock=0,
-            fullmove_number=1
-        )
-
-        print()
-        print("FEN:", fen)
-
-        evaluator = CustomEvaluator()
-        evaluation = evaluator.analyze(board)
-
-        print("Evaluation:", evaluation)
-
-    else:
-        print()
-        print("Recognized position is invalid.")
-
-    detected_image = detector.draw_detections(
-        warped_board,
-        confidence=0.25
+    print_board(
+        result["board"]
     )
 
-    cv2.imshow(
-        "Detected chess pieces",
-        detected_image
+    print()
+    print("FEN:")
+    print(
+        result["fen"]
     )
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

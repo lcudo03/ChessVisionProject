@@ -1,3 +1,5 @@
+from vision.homography import transform_point
+
 PIECE_TO_SYMBOL = {
     "white_pawn": "P",
     "white_knight": "N",
@@ -14,9 +16,9 @@ PIECE_TO_SYMBOL = {
     "black_king": "k"
 }
 
-
 def detections_to_board(
     detections,
+    perspective_matrix,
     board_size=800,
     board_margin=200
 ):
@@ -35,11 +37,19 @@ def detections_to_board(
     for detection in detections:
         x1, y1, x2, y2 = detection["bbox"]
 
-        bottom_center_x = (x1 + x2) / 2
-        bottom_center_y = y2
+        box_height = y2 - y1
 
-        relative_x = bottom_center_x - board_margin
-        relative_y = bottom_center_y - board_margin
+        reference_x = (x1 + x2) / 2
+        reference_y = y2 - 0.12 * box_height
+
+        transformed_x, transformed_y = transform_point(
+            reference_x,
+            reference_y,
+            perspective_matrix
+        )
+
+        relative_x = transformed_x - board_margin
+        relative_y = transformed_y - board_margin
 
         if not (
             0 <= relative_x < board_size
@@ -51,11 +61,13 @@ def detections_to_board(
         row = int(relative_y // square_size)
 
         confidence = detection["confidence"]
+        class_name = detection["class_name"]
+
+        if class_name not in PIECE_TO_SYMBOL:
+            continue
 
         if confidence > confidences[row][col]:
-            symbol = PIECE_TO_SYMBOL[
-                detection["class_name"]
-            ]
+            symbol = PIECE_TO_SYMBOL[class_name]
 
             board[row][col] = symbol
             confidences[row][col] = confidence
