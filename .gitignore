@@ -24,3 +24,9 @@ runs/
 *.zip
 
 old/
+
+#Local debugging files
+evaluation/corner_debug/
+evaluation/tmp/
+
+notes/working_pipeline_1.txt
