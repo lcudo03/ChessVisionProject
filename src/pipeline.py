@@ -24,7 +24,7 @@ class ChessVisionPipeline:
             corner_model_path
         )
 
-    def recognize(self, image):
+    def recognize(self, image, active_color="w"):
         corner_detections = self.corner_detector.detect(
             image
         )
@@ -52,7 +52,8 @@ class ChessVisionPipeline:
         )
 
         fen = board_to_fen(
-            board
+            board,
+            active_color=active_color
         )
 
         return {
