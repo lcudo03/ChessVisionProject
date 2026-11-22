@@ -29,7 +29,7 @@ from chess_engine.stockfish_engine import StockfishAnalyzer
 input_path = (
     project_root
     / "evaluation"
-    / "engine_positions.csv"
+    / "engine_test_positions.csv"
 )
 
 output_path = (
